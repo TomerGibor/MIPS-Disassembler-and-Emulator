@@ -1,0 +1,14 @@
+#pragma once
+
+
+typedef enum error_e
+{
+	ERROR_OK,
+	ERROR_ELF_HEADERS,
+	ERROR_OPEN_FILE,
+	ERROR_INVALID_ARGUMENT,
+	ERROR_NOT_FOUND,
+	ERROR_ILLEGAL_INSTRUCTION,
+} error_t;
+
+#define IS_SUCCESS(err) (err == ERROR_OK)
