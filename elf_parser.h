@@ -2,6 +2,8 @@
 
 #define BITS32 (1)
 #define BITS64 (2)
+#define ELF_MAGIC ("\x7F\x45\x4c\x46")
+#define MIPS (0x8)
 
 
 #include "error.h"

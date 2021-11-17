@@ -42,6 +42,12 @@ int main(int argc, char* argv[])
 		free(file);
 		return 1;
 	}
+	if (headers.file_headers.bits32.e_machine != MIPS)
+	{
+		printf("Not a MIPS executable!\n");
+		free(file);
+		return 1;
+	}
 	err = disass_code(file + code_section_offset, code_section_size, code_section_offset);
 	free(file);
 

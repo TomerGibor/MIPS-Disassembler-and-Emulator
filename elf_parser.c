@@ -7,6 +7,11 @@
 
 static error_t parse_elf_file_headers(BYTE* file_buf, elf_headers_t* headers)
 {
+	if (memcmp(file_buf, &ELF_MAGIC, sizeof(ELF_MAGIC) - 2))
+	{
+		printf("Not an ELF file!\n");
+		return ERROR_ELF_HEADERS;
+	}
 	if (*(file_buf + 0x4) == BITS32) // EI_CLASS = 1 => 32 bit
 	{
 		memcpy(&headers->file_headers.bits32, file_buf, sizeof(elf32_file_headers_t));

@@ -7,25 +7,26 @@
 
 typedef struct R_instruction_s
 {
-	UINT opcode : 6;
-	UINT rs : 5;
-	UINT rt : 5;
-	UINT rd : 5;
 	UINT funct : 6;
+	UINT shift : 5;
+	UINT rd : 5;
+	UINT rt : 5;
+	UINT rs : 5;
+	UINT opcode : 6;
 } R_instruction_t;
 
 typedef struct I_instruction_s
 {
-	UINT opcode : 6;
-	UINT rs : 5;
-	UINT rt : 5;
 	UINT IMM : 16;
+	UINT rt : 5;
+	UINT rs : 5;
+	UINT opcode : 6;
 } I_instruction_t;
 
 typedef struct J_instruction_s
 {
-	UINT opcode : 6;
 	UINT IMM : 26;
+	UINT opcode : 6;
 } J_instruction_t;
 
 typedef enum instruction_type_e
@@ -47,7 +48,9 @@ typedef struct R_funct_entry_s
 {
 	UINT funct : 6;
 	char* name;
+	BYTE is_shift;
 } R_funct_entry_t;
 
 extern instruction_entry_t instructions[NUM_INSTRUCTIONS];
 extern R_funct_entry_t R_functs[NUM_FUNCTS];
+extern char* register_names[];

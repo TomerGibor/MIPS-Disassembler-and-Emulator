@@ -2,47 +2,16 @@
 
 #include <stdio.h>
 #include <string.h>
-char* registers_name[] = {
-	"zero",
-	"at",
-	"v0",
-	"v1",
-	"a0",
-	"a1",
-	"a2",
-	"a3",
-	"t0",
-	"t1",
-	"t2",
-	"t3",
-	"t4",
-	"t5",
-	"t6",
-	"t7",
-	"s0",
-	"s1",
-	"s2",
-	"s3",
-	"s4",
-	"s5",
-	"s6",
-	"s7",
-	"t8",
-	"t9",
-	"k0",
-	"k1",
-	"gp",
-	"sp",
-	"fp",
-	"ra"
-};
+
 
 static error_t print_R_instruction(UINT instruction, const char* instruction_name)
 {
 	int i = 0;
-	R_instruction_t r_instruction = { instruction >> 26, (instruction & 0x1f0000) >> 16, (instruction & 0xf800) >> 11, (instruction & 0x7c0)>>6, (instruction & 0x3f)};
 	char* name = instruction_name;
-	//memcpy(&r_instruction, &instruction, INSTRUCTION_LEN_BYTES);
+	R_instruction_t r_instruction = {0};
+	BYTE shift = 0;
+	memcpy(&r_instruction, &instruction, INSTRUCTION_LEN_BYTES);
+
 	if (r_instruction.opcode == 0) //R functs
 	{
 		for (; i < sizeof(R_functs) / sizeof(R_funct_entry_t); i++)
@@ -50,13 +19,20 @@ static error_t print_R_instruction(UINT instruction, const char* instruction_nam
 			if (R_functs[i].funct == r_instruction.funct)
 			{
 				name = R_functs[i].name;
+				shift = R_functs[i].is_shift;
+
 				break;
 			}
 		}
 	}
 	if (!name)
 		return ERROR_ILLEGAL_INSTRUCTION;
-	printf("%s $%s, $%s, $%s\n", name, registers_name[r_instruction.rs], registers_name[r_instruction.rt], registers_name[r_instruction.rd]);
+	if (shift)
+		printf("%s $%s, $%s %#x\n", name, register_names[r_instruction.rs], register_names[r_instruction.rt],
+		       r_instruction.shift);
+	else
+		printf("%s $%s, $%s, $%s\n", name, register_names[r_instruction.rs], register_names[r_instruction.rt],
+		       register_names[r_instruction.rd]);
 	return ERROR_OK;
 }
 
@@ -64,9 +40,10 @@ static error_t print_I_instruction(UINT instruction, const char* instruction_nam
 {
 	if (!instruction_name)
 		return ERROR_ILLEGAL_INSTRUCTION;
-	I_instruction_t i_instruction = { instruction >> 26, (instruction & 0x1f0000) >> 16, (instruction & 0xf800) >> 11, (instruction & 0xffff) };
-	//memcpy(&i_instruction, &instruction, INSTRUCTION_LEN_BYTES);
-	printf("%s $%s, $%s, %d\n", instruction_name, registers_name[i_instruction.rs], registers_name[i_instruction.rt], i_instruction.IMM);
+	I_instruction_t i_instruction = {0};
+	memcpy(&i_instruction, &instruction, INSTRUCTION_LEN_BYTES);
+	printf("%s $%s, $%s, %d\n", instruction_name, register_names[i_instruction.rs], register_names[i_instruction.rt],
+	       i_instruction.IMM);
 	return ERROR_OK;
 }
 
@@ -74,8 +51,8 @@ static error_t print_J_instruction(UINT instruction, const char* instruction_nam
 {
 	if (!instruction_name)
 		return ERROR_ILLEGAL_INSTRUCTION;
-	J_instruction_t j_instruction = { instruction >> 26, (instruction & 0x3ffffff) };
-	//memcpy(&j_instruction, &instruction, INSTRUCTION_LEN_BYTES);
+	J_instruction_t j_instruction = {0};
+	memcpy(&j_instruction, &instruction, INSTRUCTION_LEN_BYTES);
 	printf("%s %d\n", instruction_name, j_instruction.IMM);
 	return ERROR_OK;
 }
@@ -89,9 +66,14 @@ error_t disass_code(BYTE* code, ULLONG code_size, ULLONG code_offset)
 	for (; i < code_size / INSTRUCTION_LEN_BYTES; i++)
 	{
 		memcpy(&instruction, &code[i * INSTRUCTION_LEN_BYTES], INSTRUCTION_LEN_BYTES);
-		opcode = instruction >>26 ;
+		opcode = instruction >> 26;
 		err = ERROR_ILLEGAL_INSTRUCTION;
 		printf("%#llx:  ", code_offset + i * INSTRUCTION_LEN_BYTES);
+		if (!instruction)
+		{
+			printf("nop\n");
+			continue;
+		}
 
 		for (j = 0; j < sizeof(instructions) / sizeof(instruction_entry_t); j++)
 		{
