@@ -4,17 +4,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-error_t read_file(const char* filepath, BYTE** out)
+error_t read_file(const char* filepath, BYTE** out, UINT* file_size)
 {
-	size_t size = 0;
 	FILE* fp = fopen(filepath, "rb");
 	if (!fp)
 		return ERROR_OPEN_FILE;
 	fseek(fp, 0, SEEK_END);
-	size = ftell(fp);
+	*file_size = ftell(fp);
 	rewind(fp);
-	*out = malloc(size);
-	if (fread(*out, 1, size, fp) != size)
+	*out = malloc(*file_size);
+	if (fread(*out, 1, *file_size, fp) != *file_size)
 	{
 		free(*out);
 		return ERROR_OPEN_FILE;

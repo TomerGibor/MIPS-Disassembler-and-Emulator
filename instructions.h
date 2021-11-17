@@ -1,6 +1,6 @@
 #pragma once
-#define NUM_INSTRUCTIONS (22)
-#define NUM_FUNCTS (23)
+#define NUM_INSTRUCTIONS (64)
+#define NUM_FUNCTS (64)
 
 #include "def.h"
 
@@ -33,12 +33,12 @@ typedef enum instruction_type_e
 {
 	R_INSTRUCTION,
 	I_INSTRUCTION,
-	J_INSTRUCTION
+	J_INSTRUCTION,
+	ILLEGAL_INSTRUCTION
 } instruction_type_t;
 
 typedef struct instruction_entry_s
 {
-	UINT opdode;
 	instruction_type_t type;
 	char* name;
 } instruction_entry_t;
@@ -46,7 +46,6 @@ typedef struct instruction_entry_s
 
 typedef struct R_funct_entry_s
 {
-	UINT funct : 6;
 	char* name;
 	BYTE is_shift;
 } R_funct_entry_t;
