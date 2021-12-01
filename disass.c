@@ -3,6 +3,17 @@
 #include <stdio.h>
 #include <string.h>
 
+static BYTE value_fron_instruction_part(instruction_part_t instruction_part, UINT instruction)
+{
+	R_instruction_t r_instruction = {0};
+	memcpy(&r_instruction, &instruction, INSTRUCTION_LEN_BYTES);
+	switch (instruction_part)
+	{
+	case INSTRUCTION_PART_RT: return r_instruction.rt;
+	case INSTRUCTION_PART_RS: return r_instruction.rs;
+	default: return 0xff;
+	}
+}
 
 static error_t print_R_instruction(UINT instruction, const char* instruction_name)
 {
@@ -51,9 +62,11 @@ static error_t print_J_instruction(UINT instruction, const char* instruction_nam
 error_t disass_code(BYTE* code, ULLONG code_size, ULLONG code_offset)
 {
 	error_t err = ERROR_OK;
-	int i = 0;
+	int i = 0, j = 0;
 	UINT instruction = 0;
 	BYTE opcode = 0;
+	char* instruction_name = NULL;
+
 	for (; i < code_size / INSTRUCTION_LEN_BYTES; i++)
 	{
 		memcpy(&instruction, &code[i * INSTRUCTION_LEN_BYTES], INSTRUCTION_LEN_BYTES);
@@ -64,16 +77,36 @@ error_t disass_code(BYTE* code, ULLONG code_size, ULLONG code_offset)
 			printf("nop\n");
 			continue;
 		}
+
+		instruction_name = instructions[opcode].name;
+
+		if (instructions[opcode].special.instruction_part_to_compare) // handle special instruction naming
+		{
+			for (j = 0; j < MAX_SPECIALS; j++)
+			{
+				if (value_fron_instruction_part(instructions[opcode].special.instruction_part_to_compare, instruction)
+					== instructions[opcode].special.instructions[j].value)
+				{
+					instruction_name = instructions[opcode].special.instructions[j].name;
+					break;
+				}
+			}
+			if (!instruction_name)
+			{
+				printf("ILLEGAL INSTRUCTION\n");
+				continue;
+			}
+		}
 		switch (instructions[opcode].type)
 		{
 		case R_INSTRUCTION:
-			err = print_R_instruction(instruction, instructions[opcode].name);
+			err = print_R_instruction(instruction, instruction_name);
 			break;
 		case I_INSTRUCTION:
-			err = print_I_instruction(instruction, instructions[opcode].name);
+			err = print_I_instruction(instruction, instruction_name);
 			break;
 		case J_INSTRUCTION:
-			err = print_J_instruction(instruction, instructions[opcode].name);
+			err = print_J_instruction(instruction, instruction_name);
 			break;
 		case ILLEGAL_INSTRUCTION:
 			printf("ILLEGAL INSTRUCTION\n");

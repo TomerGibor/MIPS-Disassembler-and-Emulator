@@ -133,6 +133,6 @@ typedef struct elf_headers_s
 	} section_headers_arr;
 } elf_headers_t;
 
-error_t parse_elf_headers(BYTE* file_buf, elf_headers_t* headers);
+error_t parse_elf_headers(BYTE* file_buf, UINT file_size, elf_headers_t* headers);
 error_t find_code_section(elf_headers_t* headers, ULLONG* section_size, ULLONG* section_offset);
 void free_headers(elf_headers_t* headers);

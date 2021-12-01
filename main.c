@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 		printf("Unable to read file %s\n", argv[1]);
 		return 1;
 	}
-	err = parse_elf_headers(file, &headers);
+	err = parse_elf_headers(file, file_size, &headers);
 	if (!IS_SUCCESS(err))
 	{
 		printf("Failed to parse ELF headers!\n");
