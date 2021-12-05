@@ -5,10 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-static error_t parse_elf_file_headers(BYTE* file_buf, elf_headers_t* headers)
-{
-	if (memcmp(file_buf, &ELF_MAGIC, sizeof(ELF_MAGIC) - 1))
-	{
+static error_t parse_elf_file_headers(byte* file_buf, elf_headers_t* headers) {
+	if (memcmp(file_buf, &ELF_MAGIC, sizeof(ELF_MAGIC) - 1)) {
 		printf("Not an ELF file!\n");
 		return ERROR_ELF_HEADERS;
 	}
@@ -27,19 +25,16 @@ static error_t parse_elf_file_headers(BYTE* file_buf, elf_headers_t* headers)
 	return ERROR_OK;
 }
 
-static error_t parse_elf_program_headers(BYTE* file_buf, UINT file_size, elf_headers_t* headers)
-{
+static error_t parse_elf_program_headers(byte* file_buf, uint file_size, elf_headers_t* headers) {
 	if (headers->architecture == ARCHITECTURE_32BIT && headers->file_headers.bits32.e_phoff + headers->file_headers.
-		bits32.e_phnum * headers->file_headers.bits32.e_phentsize <= file_size)
-	{
+		bits32.e_phnum * headers->file_headers.bits32.e_phentsize <= file_size) {
 		headers->program_headers_arr.bits32 = (elf32_program_header_t*)malloc(
 			headers->file_headers.bits32.e_phnum * headers->file_headers.bits32.e_phentsize);
 		memcpy(headers->program_headers_arr.bits32, file_buf + headers->file_headers.bits32.e_phoff,
 		       headers->file_headers.bits32.e_phnum * headers->file_headers.bits32.e_phentsize);
 	}
 	else if (headers->architecture == ARCHITECTURE_64BIT && headers->file_headers.bits64.e_phoff + headers->file_headers
-		.bits64.e_phnum * headers->file_headers.bits64.e_phentsize <= file_size)
-	{
+		.bits64.e_phnum * headers->file_headers.bits64.e_phentsize <= file_size) {
 		headers->program_headers_arr.bits64 = (elf64_program_header_t*)malloc(
 			headers->file_headers.bits64.e_phnum * headers->file_headers.bits64.e_phentsize);
 		memcpy(headers->program_headers_arr.bits64, file_buf + headers->file_headers.bits64.e_phoff,
@@ -50,19 +45,16 @@ static error_t parse_elf_program_headers(BYTE* file_buf, UINT file_size, elf_hea
 	return ERROR_OK;
 }
 
-static error_t parse_elf_section_headers(BYTE* file_buf, UINT file_size, elf_headers_t* headers)
-{
+static error_t parse_elf_section_headers(byte* file_buf, uint file_size, elf_headers_t* headers) {
 	if (headers->architecture == ARCHITECTURE_32BIT && headers->file_headers.bits32.e_shoff + headers->file_headers.
-		bits32.e_shnum * headers->file_headers.bits32.e_shentsize <= file_size)
-	{
+		bits32.e_shnum * headers->file_headers.bits32.e_shentsize <= file_size) {
 		headers->section_headers_arr.bits32 = (elf32_section_header_t*)malloc(
 			headers->file_headers.bits32.e_shnum * headers->file_headers.bits32.e_shentsize);
 		memcpy(headers->section_headers_arr.bits32, file_buf + headers->file_headers.bits32.e_shoff,
 		       headers->file_headers.bits32.e_shnum * headers->file_headers.bits32.e_shentsize);
 	}
 	else if (headers->architecture == ARCHITECTURE_64BIT && headers->file_headers.bits64.e_shoff + headers->file_headers
-		.bits64.e_shnum * headers->file_headers.bits64.e_shentsize <= file_size)
-	{
+		.bits64.e_shnum * headers->file_headers.bits64.e_shentsize <= file_size) {
 		headers->section_headers_arr.bits64 = (elf64_section_header_t*)malloc(
 			headers->file_headers.bits64.e_shnum * headers->file_headers.bits64.e_shentsize);
 		memcpy(headers->section_headers_arr.bits64, file_buf + headers->file_headers.bits64.e_shoff,
@@ -74,8 +66,7 @@ static error_t parse_elf_section_headers(BYTE* file_buf, UINT file_size, elf_hea
 }
 
 
-error_t parse_elf_headers(BYTE* file_buf, UINT file_size, elf_headers_t* headers)
-{
+error_t parse_elf_headers(byte* file_buf, uint file_size, elf_headers_t* headers) {
 	error_t err = ERROR_OK;
 	if (!headers || file_size < sizeof(elf_headers_t))
 		return ERROR_INVALID_ARGUMENT;
@@ -95,22 +86,18 @@ error_t parse_elf_headers(BYTE* file_buf, UINT file_size, elf_headers_t* headers
 	return ERROR_OK;
 }
 
-error_t find_code_section(elf_headers_t* headers, ULLONG* section_size, ULLONG* section_offset)
-{
+error_t find_code_section(elf_headers_t* headers, ullong* section_size, ullong* section_offset) {
 	int i = 0;
 
 	if (!headers)
 		return ERROR_INVALID_ARGUMENT;
 
-	if (headers->architecture == ARCHITECTURE_32BIT)
-	{
-		for (; i < headers->file_headers.bits32.e_shnum; i++)
-		{
+	if (headers->architecture == ARCHITECTURE_32BIT) {
+		for (; i < headers->file_headers.bits32.e_shnum; i++) {
 			if (headers->section_headers_arr.bits32[i].sh_addr >= headers->file_headers.bits32.e_entry && headers->
 				file_headers.bits32.e_entry <= headers->section_headers_arr.bits32[i].sh_addr + headers->
 				section_headers_arr.
-				bits32[i].sh_size)
-			{
+				bits32[i].sh_size) {
 				*section_size = headers->section_headers_arr.bits32[i].sh_size;
 				*section_offset = headers->section_headers_arr.bits32[i].sh_offset;
 				return ERROR_OK;
@@ -119,14 +106,11 @@ error_t find_code_section(elf_headers_t* headers, ULLONG* section_size, ULLONG* 
 		printf("Code section not found!\n");
 		return ERROR_NOT_FOUND;
 	}
-	if (headers->architecture == ARCHITECTURE_64BIT)
-	{
-		for (; i < headers->file_headers.bits64.e_shnum; i++)
-		{
+	if (headers->architecture == ARCHITECTURE_64BIT) {
+		for (; i < headers->file_headers.bits64.e_shnum; i++) {
 			if (headers->section_headers_arr.bits64[i].sh_offset >= headers->file_headers.bits64.e_entry && headers->
 				file_headers.bits64.e_entry <= headers->section_headers_arr.bits64[i].sh_addr + headers->
-				section_headers_arr.bits64[i].sh_size)
-			{
+				section_headers_arr.bits64[i].sh_size) {
 				*section_size = headers->section_headers_arr.bits64[i].sh_size;
 				*section_offset = headers->file_headers.bits64.e_entry;
 
@@ -139,10 +123,8 @@ error_t find_code_section(elf_headers_t* headers, ULLONG* section_size, ULLONG* 
 	return ERROR_ELF_HEADERS;
 }
 
-void free_headers(elf_headers_t* headers)
-{
-	if (headers)
-	{
+void free_headers(elf_headers_t* headers) {
+	if (headers) {
 		free(headers->program_headers_arr.bits64);
 		free(headers->section_headers_arr.bits64);
 	}

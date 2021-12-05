@@ -1,10 +1,10 @@
-# MIPS-Disassembler 
+# MIPS Disassembler and Emulator 
 
-A Disassembler for the MIPS Architecture Written in C.
+A Disassembler and Emulator for the MIPS Architecture Written in C.
 
 To run:
 
 ```bash
-./MIPS-Disassembler <path_to_mips_ELF_file>
+./MIPS-Disassembler-and-Emulator <path_to_mips_ELF_file>
 ```
 

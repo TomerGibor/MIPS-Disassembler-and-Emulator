@@ -5,4 +5,5 @@
 #define INSTRUCTION_LEN_BYTES (4)
 
 
-error_t disass_code(BYTE* code, ULLONG code_size, ULLONG code_offset);
+error_t print_disass_code(byte* code, ullong code_size, ullong code_offset);
+error_t parse_instruction(uint instruction, instruction_t* parsed_instruction);

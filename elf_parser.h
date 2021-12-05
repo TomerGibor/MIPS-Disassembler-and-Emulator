@@ -9,130 +9,119 @@
 #include "error.h"
 #include "def.h"
 
-typedef struct e_indent_s
-{
-	UINT EI_MAG;
-	BYTE EI_CLASS;
-	BYTE EI_DATA;
-	BYTE EI_VERSION;
-	BYTE EI_OSABI;
-	BYTE EI_ABIVERSION;
-	BYTE EI_PAD[7];
+typedef struct e_indent_s {
+	uint EI_MAG;
+	byte EI_CLASS;
+	byte EI_DATA;
+	byte EI_VERSION;
+	byte EI_OSABI;
+	byte EI_ABIVERSION;
+	byte EI_PAD[7];
 } e_indent_t;
 
-typedef struct elf32_file_headers_s
-{
+typedef struct elf32_file_headers_s {
 	e_indent_t e_indent;
-	USHORT e_type;
-	USHORT e_machine;
-	UINT e_version;
-	UINT e_entry;
-	UINT e_phoff;
-	UINT e_shoff;
-	UINT e_flags;
-	USHORT e_ehsize;
-	USHORT e_phentsize;
-	USHORT e_phnum;
-	USHORT e_shentsize;
-	USHORT e_shnum;
-	USHORT e_shstrndx;
+	ushort e_type;
+	ushort e_machine;
+	uint e_version;
+	uint e_entry;
+	uint e_phoff;
+	uint e_shoff;
+	uint e_flags;
+	ushort e_ehsize;
+	ushort e_phentsize;
+	ushort e_phnum;
+	ushort e_shentsize;
+	ushort e_shnum;
+	ushort e_shstrndx;
 } elf32_file_headers_t;
 
-typedef struct elf64_file_headers_s
-{
+typedef struct elf64_file_headers_s {
 	e_indent_t e_indent;
-	USHORT e_type;
-	USHORT e_machine;
-	UINT e_version;
-	ULLONG e_entry;
-	ULLONG e_phoff;
-	ULLONG e_shoff;
-	UINT e_flags;
-	USHORT e_ehsize;
-	USHORT e_phentsize;
-	USHORT e_phnum;
-	USHORT e_shentsize;
-	USHORT e_shnum;
-	USHORT e_shstrndx;
+	ushort e_type;
+	ushort e_machine;
+	uint e_version;
+	ullong e_entry;
+	ullong e_phoff;
+	ullong e_shoff;
+	uint e_flags;
+	ushort e_ehsize;
+	ushort e_phentsize;
+	ushort e_phnum;
+	ushort e_shentsize;
+	ushort e_shnum;
+	ushort e_shstrndx;
 } elf64_file_headers_t;
 
-typedef struct elf32_program_header_s
-{
-	UINT p_type;
-	UINT p_offset;
-	UINT p_vaddr;
-	UINT p_paddr;
-	UINT p_filesz;
-	UINT p_memsz;
-	UINT p_flags;
-	UINT p_align;
+typedef struct elf32_program_header_s {
+	uint p_type;
+	uint p_offset;
+	uint p_vaddr;
+	uint p_paddr;
+	uint p_filesz;
+	uint p_memsz;
+	uint p_flags;
+	uint p_align;
 } elf32_program_header_t;
 
-typedef struct elf64_program_header_s
-{
-	UINT p_type;
-	UINT p_flags;
-	ULLONG p_offset;
-	ULLONG p_vaddr;
-	ULLONG p_paddr;
-	ULLONG p_filesz;
-	ULLONG p_memsz;
-	ULLONG p_align;
+typedef struct elf64_program_header_s {
+	uint p_type;
+	uint p_flags;
+	ullong p_offset;
+	ullong p_vaddr;
+	ullong p_paddr;
+	ullong p_filesz;
+	ullong p_memsz;
+	ullong p_align;
 } elf64_program_header_t;
 
-typedef struct elf32_section_header_s
-{
-	UINT sh_name;
-	UINT sh_type;
-	UINT sh_flags;
-	UINT sh_addr;
-	UINT sh_offset;
-	UINT sh_size;
-	UINT sh_link;
-	UINT sh_info;
-	UINT sh_addralign;
-	UINT sh_entsize;
+typedef struct elf32_section_header_s {
+	uint sh_name;
+	uint sh_type;
+	uint sh_flags;
+	uint sh_addr;
+	uint sh_offset;
+	uint sh_size;
+	uint sh_link;
+	uint sh_info;
+	uint sh_addralign;
+	uint sh_entsize;
 } elf32_section_header_t;
 
-typedef struct elf64_section_header_s
-{
-	UINT sh_name;
-	UINT sh_type;
-	ULLONG sh_flags;
-	ULLONG sh_addr;
-	ULLONG sh_offset;
-	ULLONG sh_size;
-	UINT sh_link;
-	UINT sh_info;
-	ULLONG sh_addralign;
-	ULLONG sh_entsize;
+typedef struct elf64_section_header_s {
+	uint sh_name;
+	uint sh_type;
+	ullong sh_flags;
+	ullong sh_addr;
+	ullong sh_offset;
+	ullong sh_size;
+	uint sh_link;
+	uint sh_info;
+	ullong sh_addralign;
+	ullong sh_entsize;
 } elf64_section_header_t;
 
 typedef enum architecture_e { ARCHITECTURE_32BIT, ARCHITECTURE_64BIT } architecture_t;
 
-typedef struct elf_headers_s
-{
+typedef struct elf_headers_s {
 	architecture_t architecture;
 
-	union
-	{
+	union {
 		elf32_file_headers_t bits32;
 		elf64_file_headers_t bits64;
 	} file_headers;
 
-	union
-	{
+	union {
 		elf32_program_header_t* bits32;
 		elf64_program_header_t* bits64;
 	} program_headers_arr;
 
-	union
-	{
+	union {
 		elf32_section_header_t* bits32;
 		elf64_section_header_t* bits64;
 	} section_headers_arr;
 } elf_headers_t;
 
-error_t parse_elf_headers(BYTE* file_buf, UINT file_size, elf_headers_t* headers);
-error_t find_code_section(elf_headers_t* headers, ULLONG* section_size, ULLONG* section_offset);
+error_t parse_elf_headers(byte* file_buf, uint file_size, elf_headers_t* headers);
+error_t find_code_section(elf_headers_t* headers, ullong* section_size, ullong* section_offset);
 void free_headers(elf_headers_t* headers);
