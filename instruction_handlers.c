@@ -38,7 +38,6 @@ error_t handle_bgez_specials(instruction_t instruction) {
 		break;
 	default:
 		return ERROR_ILLEGAL_INSTRUCTION;
-
 	}
 	if (condition)
 		cpu.pc += instruction.instruction.i_instruction.IMM * 4;

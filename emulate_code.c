@@ -7,12 +7,13 @@
 #include "memory.h"
 
 
-error_t emulate_mips(byte* file, uint code_size, uint code_offset) {
+error_t emulate_mips(byte* file, uint file_size, uint code_size, uint code_offset, uint load_address) {
 	error_t err = ERROR_OK;
 	uint instruction = 0;
 	byte opcode = 0;
 	instruction_t parsed_instruction = {0};
 	init_memory();
+	load_file_to_memory(file, file_size, load_address);
 	cpu.pc = code_offset;
 
 	while (cpu.pc <= code_offset + code_size) {

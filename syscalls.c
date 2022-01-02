@@ -1,5 +1,9 @@
 ﻿#include "syscalls.h"
 
+#include <stdio.h>
+
+#include "cpu.h"
+
 
 error_t (*syscall_handlers[])() = {
 	NULL,
@@ -65,7 +69,8 @@ error_t (*syscall_handlers[])() = {
 };
 
 error_t handle_syscall_print_integer() {
-	return ERROR_UNSUPPORTED_SYSCALL;
+	printf("%d", cpu.registers[A0]);
+	return ERROR_OK;
 }
 
 error_t handle_syscall_print_float() {
@@ -81,7 +86,8 @@ error_t handle_syscall_print_string() {
 }
 
 error_t handle_syscall_read_integer() {
-	return ERROR_UNSUPPORTED_SYSCALL;
+	scanf_s("%d", &cpu.registers[V0]);
+	return ERROR_OK;
 }
 
 error_t handle_syscall_read_float() {

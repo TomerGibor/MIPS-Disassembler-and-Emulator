@@ -4,7 +4,7 @@
 #define BITS64 (2)
 #define ELF_MAGIC ("\x7F\x45\x4c\x46")
 #define MIPS (0x8)
-
+#define PT_LOAD (1)
 
 #include "error.h"
 #include "def.h"
@@ -123,5 +123,6 @@ typedef struct elf_headers_s {
 } elf_headers_t;
 
 error_t parse_elf_headers(byte* file_buf, uint file_size, elf_headers_t* headers);
-error_t find_code_section(elf_headers_t* headers, ullong* section_size, ullong* section_offset);
+error_t find_code_section(elf_headers_t headers, ullong* section_size, ullong* section_offset);
+error_t get_load_address32(elf_headers_t headers, uint file_size, uint* load_at);
 void free_headers(elf_headers_t* headers);

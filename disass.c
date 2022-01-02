@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static byte value_fron_instruction_part(instruction_part_t instruction_part, uint instruction) {
+static byte value_from_instruction_part(instruction_part_t instruction_part, uint instruction) {
 	R_instruction_t r_instruction = {0};
 	memcpy(&r_instruction, &instruction, INSTRUCTION_LEN_BYTES);
 	switch (instruction_part) {
@@ -75,7 +75,7 @@ error_t print_disass_code(byte* code, ullong code_size, ullong code_offset) {
 		if (instructions[opcode].special.instruction_part_to_compare) // handle special instruction naming
 		{
 			for (j = 0; j < MAX_SPECIALS; j++) {
-				if (value_fron_instruction_part(instructions[opcode].special.instruction_part_to_compare, instruction)
+				if (value_from_instruction_part(instructions[opcode].special.instruction_part_to_compare, instruction)
 					== instructions[opcode].special.instructions[j].value) {
 					instruction_name = instructions[opcode].special.instructions[j].name;
 					break;

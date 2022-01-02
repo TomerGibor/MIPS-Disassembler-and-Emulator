@@ -4,6 +4,7 @@
 #include "disass.h"
 #include "error.h"
 #include "elf_parser.h"
+#include "emulate_code.h"
 #include "utils.h"
 
 
@@ -11,6 +12,7 @@ int main(int argc, char* argv[]) {
 	error_t err = ERROR_OK;
 	byte* file = NULL;
 	uint file_size = 0;
+	uint load_address = 0;
 	ullong code_section_size = 0;
 	ullong code_section_offset = 0;
 
@@ -35,7 +37,14 @@ int main(int argc, char* argv[]) {
 		free_headers(&headers);
 		goto cleanup;
 	}
-	err = find_code_section(&headers, &code_section_size, &code_section_offset);
+	err = get_load_address32(headers, file_size, &load_address);
+	if (!IS_SUCCESS(err)) {
+		printf("Invalid load address!\n");
+		free_headers(&headers);
+		goto cleanup;
+	}
+
+	err = find_code_section(headers, &code_section_size, &code_section_offset);
 	free_headers(&headers);
 	if (!IS_SUCCESS(err)) {
 		printf("Failed to get code section size!\n");
@@ -47,12 +56,18 @@ int main(int argc, char* argv[]) {
 	}
 
 	err = print_disass_code(file + code_section_offset, code_section_size, code_section_offset);
-	free(file);
-
 	if (!IS_SUCCESS(err)) {
 		printf("Failed to disassemble code!\n");
-		return 1;
+		goto cleanup;
 	}
+
+	err = emulate_mips(file, file_size, code_section_size, code_section_offset, load_address);
+	if (!IS_SUCCESS(err)) {
+		printf("Failed to emulate code!\n");
+		goto cleanup;
+	}
+
+	free(file);
 	return 0;
 
 cleanup:

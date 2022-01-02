@@ -13,7 +13,7 @@ typedef enum error_e {
 	ERROR_UNINIT_MEMORY,
 	ERROR_UNSUPPORTED_SYSCALL,
 	ERROR_ILLEGAL_SYSCALL,
-
+	ERROR_INVALID_LOAD_ADDRESS,
 } error_t;
 
-#define IS_SUCCESS(err) (err == ERROR_OK)
+#define IS_SUCCESS(err) ((err) == ERROR_OK)

@@ -2,6 +2,11 @@
 #include "error.h"
 #include "def.h"
 #define NUM_SYSCALLS (60)
+#define V0 (2)
+#define A0 (4)
+#define A1 (5)
+#define A2 (6)
+#define A3 (7)
 
 extern error_t (*syscall_handlers[])();
 

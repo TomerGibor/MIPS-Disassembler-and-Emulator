@@ -107,7 +107,6 @@
     <ClCompile Include="main.c" />
     <ClCompile Include="memory.c" />
     <ClCompile Include="syscalls.c" />
-    <ClCompile Include="tests\test.c" />
     <ClCompile Include="utils.c" />
   </ItemGroup>
   <ItemGroup>

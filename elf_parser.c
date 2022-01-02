@@ -86,33 +86,30 @@ error_t parse_elf_headers(byte* file_buf, uint file_size, elf_headers_t* headers
 	return ERROR_OK;
 }
 
-error_t find_code_section(elf_headers_t* headers, ullong* section_size, ullong* section_offset) {
+error_t find_code_section(elf_headers_t headers, ullong* section_size, ullong* section_offset) {
 	int i = 0;
 
-	if (!headers)
-		return ERROR_INVALID_ARGUMENT;
-
-	if (headers->architecture == ARCHITECTURE_32BIT) {
-		for (; i < headers->file_headers.bits32.e_shnum; i++) {
-			if (headers->section_headers_arr.bits32[i].sh_addr >= headers->file_headers.bits32.e_entry && headers->
-				file_headers.bits32.e_entry <= headers->section_headers_arr.bits32[i].sh_addr + headers->
+	if (headers.architecture == ARCHITECTURE_32BIT) {
+		for (; i < headers.file_headers.bits32.e_shnum; i++) {
+			if (headers.section_headers_arr.bits32[i].sh_addr >= headers.file_headers.bits32.e_entry && headers.
+				file_headers.bits32.e_entry <= headers.section_headers_arr.bits32[i].sh_addr + headers.
 				section_headers_arr.
 				bits32[i].sh_size) {
-				*section_size = headers->section_headers_arr.bits32[i].sh_size;
-				*section_offset = headers->section_headers_arr.bits32[i].sh_offset;
+				*section_size = headers.section_headers_arr.bits32[i].sh_size;
+				*section_offset = headers.section_headers_arr.bits32[i].sh_offset;
 				return ERROR_OK;
 			}
 		}
 		printf("Code section not found!\n");
 		return ERROR_NOT_FOUND;
 	}
-	if (headers->architecture == ARCHITECTURE_64BIT) {
-		for (; i < headers->file_headers.bits64.e_shnum; i++) {
-			if (headers->section_headers_arr.bits64[i].sh_offset >= headers->file_headers.bits64.e_entry && headers->
-				file_headers.bits64.e_entry <= headers->section_headers_arr.bits64[i].sh_addr + headers->
+	if (headers.architecture == ARCHITECTURE_64BIT) {
+		for (; i < headers.file_headers.bits64.e_shnum; i++) {
+			if (headers.section_headers_arr.bits64[i].sh_offset >= headers.file_headers.bits64.e_entry && headers.
+				file_headers.bits64.e_entry <= headers.section_headers_arr.bits64[i].sh_addr + headers.
 				section_headers_arr.bits64[i].sh_size) {
-				*section_size = headers->section_headers_arr.bits64[i].sh_size;
-				*section_offset = headers->file_headers.bits64.e_entry;
+				*section_size = headers.section_headers_arr.bits64[i].sh_size;
+				*section_offset = headers.file_headers.bits64.e_entry;
 
 				return ERROR_OK;
 			}
@@ -121,6 +118,22 @@ error_t find_code_section(elf_headers_t* headers, ullong* section_size, ullong* 
 		return ERROR_NOT_FOUND;
 	}
 	return ERROR_ELF_HEADERS;
+}
+
+error_t get_load_address32(elf_headers_t headers, uint file_size, uint* load_at) {
+	int i = 0;
+	uint min_address = UINT_MAX;
+
+	for (; i < headers.file_headers.bits32.e_phnum; i++) {
+		if (headers.program_headers_arr.bits32[i].p_type == PT_LOAD && headers.program_headers_arr.bits32[i].p_vaddr <
+			min_address) {
+			min_address = headers.program_headers_arr.bits32[i].p_vaddr;
+			*load_at = min_address;
+		}
+	}
+	if ((ullong)min_address + file_size >= UINT_MAX)
+		return ERROR_INVALID_LOAD_ADDRESS;
+	return ERROR_OK;
 }
 
 void free_headers(elf_headers_t* headers) {
